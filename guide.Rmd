@@ -1,0 +1,14 @@
+---
+title: "how to make websites using rmd"
+author: "Kevin S.W."
+date: "10/17/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# making webs in github
+
+First you have to make sure the github repo has ".github.io" extension. Then you should also add an index.html as this is a common element inside a website.

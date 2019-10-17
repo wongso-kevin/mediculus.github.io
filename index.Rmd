@@ -29,4 +29,4 @@ note: first thing first, don't have readme when making a website because it migh
 
 to add another page, just copy another rmd and rename it to something else.
 
-For example, after making an about page, we could link it here by using the local link [here](about.html)
+For example, after making an about page, we could link it here by using the local link [here](about.html). Or, we could go to the [guide](guide.html) on more details on how to make webs
