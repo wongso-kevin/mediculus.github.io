@@ -17,7 +17,7 @@ I often use [google](https://www.google.com) to do data science.
 
 # we can also add images using
 
-the syntax "![this is my cat](https://www.youtube.com/watch?v=oHg5SJYRHA0)" with similar context as links.
+the syntax "[this is my cat](https://www.youtube.com/watch?v=oHg5SJYRHA0)" with similar context as links.
 
 you can add local image by using local datapath or use a web-link to anchor it to. However, if the web pulls down the image, then the image in your web will be gone
 
@@ -26,3 +26,7 @@ you can add local image by using local datapath or use a web-link to anchor it t
 very rarely that you only have 1 page. you'd want to have several
 
 note: first thing first, don't have readme when making a website because it might confuse things
+
+to add another page, just copy another rmd and rename it to something else.
+
+For example, after making an about page, we could link it here by using the local link [here](about.html)

@@ -1,0 +1,12 @@
+---
+title: "My about stuff"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: cerulean
+---
+
+# about page!!
+
+trial 1
