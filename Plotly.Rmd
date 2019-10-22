@@ -2,7 +2,11 @@
 title: "how to make websites using rmd"
 author: "Kevin S.W."
 date: "10/17/2019"
-output: html_document
+output: 
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
@@ -136,3 +140,5 @@ ggplotly(box_ggplot)
 Clearly you can embed interactive graphics in HTML files produced by R Markdown; this is a handy time to introduce dashboards. In short, dashboards are a collection of related graphics (or tables, or other outputs) that are displayed in a structured way that’s easy to navigate.
 
 You can create dashboards using the flexdashboard package by specifying flex_dashboard as the output format in your R Markdown YAML. There are a variety of layout options, but we’ll focus on a pretty simple structure produced by the template below. This is the default dashboard template in R Studio – if you have flexdashboard installed, you can use File > New File > R Markdown > From Template to create a new .Rmd file with the structure below.
+
+Now, when making dashboard, you save it just outside of the project folder
