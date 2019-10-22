@@ -5,12 +5,14 @@ navbar:
   right:
     - text: "About"
       href: about.html
+    - text: "Examples"
+      menu:
+      - text: "Plotly"
+        href: Plotly.html
     - icon: fa-envelope fa-lg
       href: mailto:<you@youremail.com>   # will have an icon when clicked, will prompt an email to this email
     - icon: fa-github fa-lg
       href: http://github.com/<YOUR_GH_NAME>/   # setup a link to your github page
-    - text: "Plotly"
-      href: Plotly.html
 output:
   html_document:
     theme: cerulean
