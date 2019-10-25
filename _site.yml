@@ -1,18 +1,29 @@
-name: "Yay internet!"
+name: "Global Settings"
 output_dir: "."
 navbar:
-  title: "Home"
+  title: "Life Story - Mediculus"
   right:
-    - text: "About"
-      href: about.html
-    - text: "Examples"
-      menu:
-      - text: "Plotly"
-        href: Plotly.html
-    - icon: fa-envelope fa-lg
-      href: mailto:<you@youremail.com>   # will have an icon when clicked, will prompt an email to this email
-    - icon: fa-github fa-lg
-      href: http://github.com/<YOUR_GH_NAME>/   # setup a link to your github page
+  - text: "About Me"
+    icon: fa-user-circle-o fa-lg
+    href: about.html
+  - text: "Some graphs..."
+    href: Plotly.html
+  - icon: fa-telegram fa-lg
+    text: "Contact Me"
+    href: mailto:<ksw2137@cumc.columbia.edu> 
+  - icon: fa-linkedin fa-lg
+    href: https://www.linkedin.com/in/kwongso/
+  - icon: fa-github-square fa-lg
+    href: https://github.com/Mediculus   # setup a link to your github page
 output:
   html_document:
-    theme: cerulean
+    theme: simplex
+   
+    
+    
+# making a -text: "name" 
+#              menu:
+#             - text: ...
+# will allow you to create dropdowns
+# note: new bootstrap 4 doesn't work with rmarkdown???
+# also, font-awesome 5 does not work as they changed naming convention.
