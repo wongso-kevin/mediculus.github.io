@@ -141,4 +141,14 @@ Clearly you can embed interactive graphics in HTML files produced by R Markdown;
 
 You can create dashboards using the flexdashboard package by specifying flex_dashboard as the output format in your R Markdown YAML. There are a variety of layout options, but we’ll focus on a pretty simple structure produced by the template below. This is the default dashboard template in R Studio – if you have flexdashboard installed, you can use File > New File > R Markdown > From Template to create a new .Rmd file with the structure below.
 
-Now, when making dashboard, you save it just outside of the project folder
+Now, when making dashboard, you save it just outside of the project folder first. Reason is because, when you knit a dashboard inside a "web", there's a particular way to do it.
+
+***NOTE***
+
+Reason being, when you knit inside the project, by default, knitr will just "strip" the "dashboard" components; the website’s _site.yml file conflicts with the dashboard’s YAML header regarding the output format – and the website’s _site.yml “wins”. To address this issue, instead of knitting you can use this command to knit the dashboard.
+
+`rmarkdown::render("dashboard_template.Rmd", output_format = "flexdashboard::flex_dashboard")`
+
+This will create dashboard_template.html but not open it in RStudio’s Viewer pane; you can open the file in a browser instead. Alternatively, using RStudio’s Build pane to Build Website will produce the same results. To illustrate, we’ll put the dashboard we just created on a website for this topic.
+
+All of this YAML business is only an issue for dashboards embedded in websites; a standalone dashboard (in a non-website GH repo or R Project) can be knit using the same process as other .Rmd file
