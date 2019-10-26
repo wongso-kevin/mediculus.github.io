@@ -1,5 +1,5 @@
 name: "Global Settings"
-output_dir: 
+output_dir: "."
 navbar:
   title: "Life Story - Mediculus"
   right:
@@ -22,6 +22,8 @@ navbar:
 output:
   html_document:
     theme: simplex
+    includes:
+      after_body: _suffix.html
    
     
 # note: new bootstrap 4 doesn't work with rmarkdown???
