@@ -1,12 +1,13 @@
 name: "Global Settings"
 output_dir: "."
 navbar:
-  title: "Life Story - Mediculus"
+  title: "<div><img src=\"images/pikalogo.png\"></img><span style=\"padding-left:20px\">Mediculus</div>"
   right:
   - text: "About Me"
     icon: fa-user-circle-o fa-lg
     href: about.html
   - text: "Stuff I learned"
+    icon: fa-code fa-lg
     menu:
     - text: "Plotly"
       href: plotstuff.html
@@ -28,3 +29,8 @@ output:
     
 # note: new bootstrap 4 doesn't work with rmarkdown???
 # also, font-awesome 5 does not work as they changed naming convention.
+
+# when adding footer:
+# knit the Rmd then delete it. Afterwards, remove <head></head> as it interferes 
+# with tabbed contents and dropdown menu. 
+# Also delete the bottom 3 sections after </div> that contains your footer.
