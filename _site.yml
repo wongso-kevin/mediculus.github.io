@@ -1,13 +1,17 @@
 name: "Global Settings"
-output_dir: "."
+output_dir: 
 navbar:
   title: "Life Story - Mediculus"
   right:
   - text: "About Me"
     icon: fa-user-circle-o fa-lg
     href: about.html
-  - text: "Some graphs..."
-    href: Plotly.html
+  - text: "Stuff I learned"
+    menu:
+    - text: "Plotly"
+      href: plotstuff.html
+    - text: "Flexdashboards"
+      href: dashboard-hw.html
   - icon: fa-telegram fa-lg
     text: "Contact Me"
     href: mailto:<ksw2137@cumc.columbia.edu> 
@@ -20,10 +24,5 @@ output:
     theme: simplex
    
     
-    
-# making a -text: "name" 
-#              menu:
-#             - text: ...
-# will allow you to create dropdowns
 # note: new bootstrap 4 doesn't work with rmarkdown???
 # also, font-awesome 5 does not work as they changed naming convention.

@@ -1,0 +1,106 @@
+---
+title: "Entire home/apt AirBnB Data in NYC"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include = FALSE}
+library(flexdashboard)
+
+Packages <- c("tidyverse", "viridis", "dplyr", "readxl", "plotly", "flexdashboard", "p8105.datasets")
+invisible(lapply(Packages, library, character.only = TRUE))
+
+data("nyc_airbnb")
+set.seed(70)
+
+base_df <- nyc_airbnb %>% 
+  janitor::clean_names() %>% 
+  rename(
+    "rating" = review_scores_location,
+    "boro" = neighbourhood_group
+  ) %>% 
+  mutate(price_per_night = price/minimum_nights,
+         rating = rating/2,
+         boro = as.factor(boro),
+         neighbourhood = as.factor(neighbourhood),
+         room_type = as.factor(room_type)
+  ) %>% 
+  select(boro, neighbourhood, room_type, lat, long, price_per_night, rating) %>% 
+  filter(!is.na(rating),
+         room_type == "Entire home/apt") %>% 
+  sample_n(5000)
+
+```
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Listings with 5-star Ratings in Manhattan by Neighbourhoods
+
+```{r}
+
+ax <- list(
+  title = "",
+  zeroline = FALSE,
+  showline = FALSE,
+  showticklabels = FALSE
+)
+
+base_df %>% 
+  filter(boro == "Manhattan",
+         rating == 5) %>% 
+  mutate(text_label = str_c("Neighbourhood: ", neighbourhood, "\nPrice/Night: ", price_per_night)) %>%
+  plot_ly(x = ~lat, y = ~long, type = "scatter", mode = "markers", 
+          color = ~neighbourhood, alpha = 0.5, colors = viridis_pal(option = "D")(31),
+          text = ~text_label) %>% 
+  layout(xaxis = ax, yaxis = ax)
+
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Neighbourhoods with most <$75.00 home/apt listings
+
+```{r}
+
+base_df %>% 
+  filter(price_per_night < 75) %>% 
+  group_by(boro, neighbourhood) %>% 
+  count(neighbourhood, sort = TRUE) %>% 
+  ungroup() %>% 
+  top_n(10) %>% 
+  droplevels() %>% 
+  mutate(neighbourhood = fct_reorder(neighbourhood, n)) %>% 
+  plot_ly(x = ~neighbourhood, y = ~n, type = "bar", 
+          color = ~boro, colors = viridis_pal(option = "D")(2)) %>% 
+  layout(
+    xaxis = list(
+      title = "Neighbourhoods"),
+    yaxis = list(
+      title = "Number of < $75.00 listings"
+    ))
+
+```
+
+### Distribution of price/night in the 5 Boroughs
+
+```{r}
+
+base_df %>% 
+  filter(room_type == "Entire home/apt",
+         price_per_night %in% 0:350) %>% 
+  mutate(boro = fct_reorder(boro, price_per_night)) %>% 
+  plot_ly(y = ~price_per_night, x = ~boro, type = "box", 
+          color = ~boro, colors = viridis_pal(option = "D")(5)) %>% 
+  layout(
+    xaxis = list(
+      title = "Boroughs"),
+    yaxis = list(
+      title = "Price per Night ($)"
+    ))
+
+```
+

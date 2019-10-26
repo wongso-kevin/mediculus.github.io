@@ -62,7 +62,10 @@ nyc_airbnb %>%
   mutate(text_label = str_c("Price: $", price, '\nRating: ', rating)) %>%  # concatenate stuff into the texts
   plot_ly(
     x = ~lat, y = ~long, type = "scatter", mode = "markers",
-    color = ~price, text = ~text_label, alpha = 0.5) # "~" indicates the "variable" you need for plotly
+    color = ~price, text = ~text_label, alpha = 0.5,   # "~" indicates the "variable" you need for plotly
+    colors = viridis_pal(option = "D")(31))   # in plotly, you can use viridis but you have to specify things
+       # ie, option = X picks the palette set, while (option)(n) picks n "different" colors
+
 
 ```
 

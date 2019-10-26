@@ -10,9 +10,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
+<meta name="author" content="Kevin S.W." />
 
+<meta name="date" content="2019-10-17" />
 
-<title>Building webs…</title>
+<title>how to make websites using rmd</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -283,8 +285,20 @@ $(document).ready(function () {
     About Me
   </a>
 </li>
-<li>
-  <a href="Plotly.html">Some graphs...</a>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Stuff I learned
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="Plotly.html">Plotly</a>
+    </li>
+    <li>
+      <a href="dashboard.html">Flexdashboards</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="mailto:&lt;ksw2137@cumc.columbia.edu&gt;">
@@ -314,22 +328,28 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Building webs…</h1>
+<h1 class="title toc-ignore">how to make websites using rmd</h1>
+<h4 class="author">Kevin S.W.</h4>
+<h4 class="date">10/17/2019</h4>
 
 </div>
 
 
-<div id="we-can-also-add-images-using" class="section level1">
-<h1>we can also add images using</h1>
-<p>the syntax “<a href="https://www.youtube.com/watch?v=oHg5SJYRHA0">this is my cat</a>” with similar context as links.</p>
-<p>you can add local image by using local datapath or use a web-link to anchor it to. However, if the web pulls down the image, then the image in your web will be gone</p>
+<div id="making-webs-in-github" class="section level1">
+<h1>making webs in github</h1>
+<p>First you have to make sure the github repo has “.github.io” extension. Then you should also add an index.html as this is a common element inside a website.</p>
 </div>
-<div id="in-a-web" class="section level1">
-<h1>in a web…</h1>
-<p>very rarely that you only have 1 page. you’d want to have several</p>
-<p>note: first thing first, don’t have readme when making a website because it might confuse things</p>
-<p>to add another page, just copy another rmd and rename it to something else.</p>
-<p>For example, after making an about page, we could link it here by using the local link <a href="about.html">here</a>. Or, we could go to the <a href="guide.html">guide</a> on more details on how to make webs</p>
+<div id="adding-global-settings" class="section level1">
+<h1>adding global settings</h1>
+<p>we could add the “title, author” stuff, we could make a &quot;_site.yml&quot; that contains this universal setting.</p>
+</div>
+<div id="rstudio-windows-after-setting-up-page" class="section level1">
+<h1>rstudio windows after setting up page</h1>
+<p>now that we have assigned this project as a “web”, opening rstudio opens a “build” tab next to “git”. this allows a quick “knitting” to see what your website look like.</p>
+</div>
+<div id="customizing-beyond-the-basics" class="section level1">
+<h1>customizing beyond the basics</h1>
+<p>you can check <a href="https://bootswatch.com">bootswatch</a> for adding themes. but this require adding theme: under the html_document output</p>
 </div>
 
 

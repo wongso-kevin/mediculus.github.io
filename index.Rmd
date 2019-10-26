@@ -13,3 +13,5 @@ This website is my first experience into web-building using Rmarkdown! The inten
 # For now though...
 
 You could learn a bit about me [here](about.html) or you could click the "about me" at the top-right navigation bar in this web! There, you could see my background, academic, and professional history though it's not the complete list.
+
+Or...you could also check out the thing I learned about [Plotly](plotstuff.html) and [flexdashboard](dashboard-hw.html)
