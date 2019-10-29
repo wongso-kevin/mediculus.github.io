@@ -1,5 +1,5 @@
 ---
-title: "Weather Patterns in 5 Locations within NY State"
+title: "Various Weather Data around NY State"
 output: 
   flexdashboard::flex_dashboard:
     orientation: columns
@@ -16,24 +16,26 @@ data("ny_noaa")
 
 base_df <- ny_noaa %>% 
   janitor::clean_names() %>% 
-  drop_na() %>% 
+  drop_na() %>%                                                     # drop any NA in any column
   filter(id %in% c("USW00094728", "USC00300961", "USC00306164", "USC00307799", "USW00014735")) %>% 
   mutate(location = case_when(id == "USW00094728" ~ "Manhattan",
                               id == "USC00300961" ~ "Bronx",
                               id == "USC00306164" ~ "Ogdensburg",
                               id == "USC00307799" ~ "Slide Mountain",
                               id == "USW00014735" ~ "Albany"),
-         year = lubridate::year(date),
+         tmin = as.numeric(tmin)/10,                                # convert from tenths to regular C
+         tmax = as.numeric(tmax)/10,
+         year = lubridate::year(date),                              # turn to specified date format
          month = lubridate::month(date),
          date = lubridate::day(date)) %>% 
   select(location, year, month, date, everything(), -id, -snwd)
 
 ```
 
-Column {data-width=650}
+Column {data-width=600}
 -----------------------------------------------------------------------
 
-### Annual Snowfall (mm) fluctuations in these New York Locations
+### Annual Snowfall (mm) fluctuations
 
 ```{r}
 
@@ -42,21 +44,21 @@ base_df %>%
   group_by(location, year) %>% 
   summarize(yearly_snow = sum(snow)) %>% 
   plot_ly(y = ~yearly_snow, x = ~year, type = "scatter", mode = "lines",     # make line graph
-          color = ~location, colors = viridis_pal(option = "D")(5)) %>%      # tells viridis to get 5 colors %>% 
+          color = ~location, colors = viridis_pal(option = "D")(5)) %>%      # tells viridis to get 5 colors 
   layout(
     xaxis = list(
       title = "Year",
-      autotick = FALSE, tick0 = 1980, dtick = 2, tickangle = 45),
+      autotick = FALSE, tick0 = 1980, dtick = 2, tickangle = 45),            # manually assigns ticks/tick-gaps
     yaxis = list(
       title = "Annual Snowfall (mm)"
     ))
 
 ```
 
-Column {data-width=350}
+Column {data-width=400}
 -----------------------------------------------------------------------
 
-### Manhattan Monthly Temperature (C) changes in 2010
+### Manhattan Monthly Temperature (C) in 2010
 
 ```{r}
 
@@ -68,10 +70,10 @@ base_df %>%
                names_to = "obs",
                values_to = "temp") %>% 
   plot_ly(y = ~temp, x = ~month, type = "scatter", mode = "markers",     
-          color = ~obs, colors = viridis_pal(option = "D")(10), opacity = 0.4) %>%
+          color = ~obs, opacity = 0.8) %>%
   layout(
     xaxis = list(
-      title = "Months in 2010",
+      title = "Month",
       autotick = FALSE, tick0 = 1, dtick = 1),
     yaxis = list(
       title = "Temperature (C)"
@@ -79,7 +81,7 @@ base_df %>%
 
 ```
 
-### Bronx's Total Precipitation and Average Min Temperature in 2010
+### Bronx's Monthly Precipitation & Mean Min-Temp in 2010
 
 ```{r}
 
@@ -91,11 +93,11 @@ base_df %>%
   summarize(total_prcp = sum(prcp),
             avg_tmin = mean(tmin)) %>% 
   plot_ly() %>% 
-  add_trace(x = ~month, y = ~total_prcp, type = "bar", name = "Precipitation (mm)",
-            hoverinfo = "text",
-            text = ~paste(total_prcp, " mm")) %>% 
-  add_trace(x = ~month, y = ~avg_tmin, type = "scatter", mode = "line", name = "Min Temp (C)", 
-            yaxis = "y2",
+  add_trace(x = ~month, y = ~total_prcp, type = "bar", name = "Precip\n(mm)",  # add bar graph
+            hoverinfo = "text",                                                      # add hoverinfo
+            text = ~paste(total_prcp, " mm")) %>%                                    # hoverinfo content
+  add_trace(x = ~month, y = ~avg_tmin, type = "scatter", mode = "line", name = "Min\nTemp (C)", # add line graph
+            yaxis = "y2",                                                                      # specify 2nd y-axis
             hoverinfo = "text",
             text = ~paste(avg_tmin, " C")) %>% 
   layout(
@@ -108,7 +110,7 @@ base_df %>%
       title = 'Min Temp (C)', 
       showgrid = FALSE, zeroline = FALSE),
     xaxis = list(
-      title = "Months in 2010",
+      title = "Month",
       autotick = FALSE, tick0 = 1, dtick = 1, tickangle = 0)
   )
 

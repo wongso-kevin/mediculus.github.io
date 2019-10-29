@@ -404,8 +404,8 @@ div.tocify {
 
 
 <p><br></br><br></br></p>
-<div id="preparing-datasets" class="section level1">
-<h1>Preparing Datasets</h1>
+<div id="preparing-datasets" class="section level2">
+<h2>Preparing Datasets</h2>
 <p>We’re going to use the NYC NOAA dataset in <code>p8105.datasets</code> from our P8105 class. More information about the dataset is <a href="https://p8105.com/dataset_noaa.html">here</a>. The plots can be seen <a href="dashboard-hw.html">here</a> (or click on “Stuff I Learned” and click on “Dashboard”). This page will describe the code behind the graphs.</p>
 <pre class="r"><code>data(&quot;ny_noaa&quot;)
 
@@ -424,16 +424,16 @@ base_df &lt;- ny_noaa %&gt;%
          month = lubridate::month(date),
          date = lubridate::day(date)) %&gt;% 
   select(location, year, month, date, everything(), -id, -snwd)</code></pre>
-<p>We filter out unnecessary variables and retains only the information we want: year/month/date, precipitation, snowfall, and max/min temp. We will be comparing these information between locations in New York State; Manhattan, Bronx, Ogdensburg, Slide Mountain, and Albany. <br></br></p>
+<p>We filter out unnecessary variables and retain only the information we want: year/month/date, precipitation, snowfall, and max/min temp. We will be comparing these information between locations in New York State: Manhattan, Bronx, Ogdensburg, Slide Mountain, and Albany. <br></br></p>
 </div>
-<div id="getting-plot-for-annual-snowfall-between-1981---2010" class="section level1">
-<h1>Getting plot for annual snowfall between 1981 - 2010</h1>
+<div id="annual-snowfall-between-1981---2010" class="section level2">
+<h2>Annual snowfall between 1981 - 2010</h2>
 <pre class="r"><code>base_df %&gt;% 
   select(location, year, month, snow) %&gt;%
   group_by(location, year) %&gt;% 
   summarize(yearly_snow = sum(snow)) %&gt;% 
   plot_ly(y = ~yearly_snow, x = ~year, type = &quot;scatter&quot;, mode = &quot;lines&quot;,     # make line graph
-          color = ~location, colors = viridis_pal(option = &quot;D&quot;)(5)) %&gt;%      # tells viridis to get 5 colors %&gt;% 
+          color = ~location, colors = viridis_pal(option = &quot;D&quot;)(5)) %&gt;%      # tells viridis to get 5 colors 
   layout(
     xaxis = list(
       title = &quot;Year&quot;,
@@ -443,8 +443,8 @@ base_df &lt;- ny_noaa %&gt;%
     ))</code></pre>
 <p>This particular code creates a simple line graph with colors based on the locations that shows how the annual snowfall fluctuates over the years. <br></br></p>
 </div>
-<div id="manhattan-monthly-temperature-c-changes-in-2010" class="section level1">
-<h1>Manhattan Monthly Temperature (C) changes in 2010</h1>
+<div id="manhattan-monthly-temperature-c-in-2010" class="section level2">
+<h2>Manhattan Monthly Temperature (C) in 2010</h2>
 <pre class="r"><code>base_df %&gt;% 
   select(location, year, month, tmin, tmax) %&gt;%
   filter(location == &quot;Manhattan&quot;,
@@ -453,18 +453,18 @@ base_df &lt;- ny_noaa %&gt;%
                names_to = &quot;obs&quot;,
                values_to = &quot;temp&quot;) %&gt;% 
   plot_ly(y = ~temp, x = ~month, type = &quot;scatter&quot;, mode = &quot;markers&quot;,     
-          color = ~obs, colors = viridis_pal(option = &quot;D&quot;)(10), opacity = 0.4) %&gt;%
+          color = ~obs, opacity = 0.8) %&gt;%
   layout(
     xaxis = list(
-      title = &quot;Months in 2010&quot;,
+      title = &quot;Month&quot;,
       autotick = FALSE, tick0 = 1, dtick = 1),
     yaxis = list(
       title = &quot;Temperature (C)&quot;
     ))</code></pre>
 <p>Focusing on Manhattan (Central Park) itself, we can also check the monthly changes in minimum and maximum temperature each year using a scatterplot. In this case, we particularly focus on 2010. <br></br></p>
 </div>
-<div id="bronxs-total-precipitation-and-average-min-temperature-in-2010" class="section level1">
-<h1>Bronx’s Total Precipitation and Average Min Temperature in 2010</h1>
+<div id="bronxs-monthly-precipitation-mean-min-temp-in-2010" class="section level2">
+<h2>Bronx’s Monthly Precipitation &amp; Mean Min-Temp in 2010</h2>
 <pre class="r"><code>base_df %&gt;% 
   select(location, year, month, prcp, tmin) %&gt;%
   filter(location == &quot;Bronx&quot;,
@@ -473,10 +473,10 @@ base_df &lt;- ny_noaa %&gt;%
   summarize(total_prcp = sum(prcp),
             avg_tmin = mean(tmin)) %&gt;% 
   plot_ly() %&gt;% 
-  add_trace(x = ~month, y = ~total_prcp, type = &quot;bar&quot;, name = &quot;Precipitation (mm)&quot;,  # add bar graph
+  add_trace(x = ~month, y = ~total_prcp, type = &quot;bar&quot;, name = &quot;Precip\n(mm)&quot;,  # add bar graph
             hoverinfo = &quot;text&quot;,                                                      # add hoverinfo
             text = ~paste(total_prcp, &quot; mm&quot;)) %&gt;%                                    # hoverinfo content
-  add_trace(x = ~month, y = ~avg_tmin, type = &quot;scatter&quot;, mode = &quot;line&quot;, name = &quot;Min Temp (C)&quot;, # add line graph
+  add_trace(x = ~month, y = ~avg_tmin, type = &quot;scatter&quot;, mode = &quot;line&quot;, name = &quot;Min\nTemp (C)&quot;, # add line graph
             yaxis = &quot;y2&quot;,                                                                      # specify 2nd y-axis
             hoverinfo = &quot;text&quot;,
             text = ~paste(avg_tmin, &quot; C&quot;)) %&gt;% 
@@ -490,7 +490,7 @@ base_df &lt;- ny_noaa %&gt;%
       title = &#39;Min Temp (C)&#39;, 
       showgrid = FALSE, zeroline = FALSE),
     xaxis = list(
-      title = &quot;Months in 2010&quot;,
+      title = &quot;Month&quot;,
       autotick = FALSE, tick0 = 1, dtick = 1, tickangle = 0)
   )</code></pre>
 <p>This code combines a bar plot (for total precipitation) and line plot (for average min temp) in order to see possible correlation with temperature and “rainfall” in Bronx, 2010.</p>
