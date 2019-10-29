@@ -1,5 +1,5 @@
 ---
-title: "Entire home/apt AirBnB Data in NYC"
+title: "Weather Patterns in 5 Locations within NY State"
 output: 
   flexdashboard::flex_dashboard:
     orientation: columns
@@ -12,95 +12,105 @@ library(flexdashboard)
 Packages <- c("tidyverse", "viridis", "dplyr", "readxl", "plotly", "flexdashboard", "p8105.datasets")
 invisible(lapply(Packages, library, character.only = TRUE))
 
-data("nyc_airbnb")
-set.seed(70)
+data("ny_noaa")
 
-base_df <- nyc_airbnb %>% 
+base_df <- ny_noaa %>% 
   janitor::clean_names() %>% 
-  rename(
-    "rating" = review_scores_location,
-    "boro" = neighbourhood_group
-  ) %>% 
-  mutate(price_per_night = price/minimum_nights,
-         rating = rating/2,
-         boro = as.factor(boro),
-         neighbourhood = as.factor(neighbourhood),
-         room_type = as.factor(room_type)
-  ) %>% 
-  select(boro, neighbourhood, room_type, lat, long, price_per_night, rating) %>% 
-  filter(!is.na(rating),
-         room_type == "Entire home/apt") %>% 
-  sample_n(5000)
+  drop_na() %>% 
+  filter(id %in% c("USW00094728", "USC00300961", "USC00306164", "USC00307799", "USW00014735")) %>% 
+  mutate(location = case_when(id == "USW00094728" ~ "Manhattan",
+                              id == "USC00300961" ~ "Bronx",
+                              id == "USC00306164" ~ "Ogdensburg",
+                              id == "USC00307799" ~ "Slide Mountain",
+                              id == "USW00014735" ~ "Albany"),
+         year = lubridate::year(date),
+         month = lubridate::month(date),
+         date = lubridate::day(date)) %>% 
+  select(location, year, month, date, everything(), -id, -snwd)
 
 ```
 
 Column {data-width=650}
 -----------------------------------------------------------------------
 
-### Listings with 5-star Ratings in Manhattan by Neighbourhoods
+### Annual Snowfall (mm) fluctuations in these New York Locations
 
 ```{r}
 
-ax <- list(
-  title = "",
-  zeroline = FALSE,
-  showline = FALSE,
-  showticklabels = FALSE
-)
-
 base_df %>% 
-  filter(boro == "Manhattan",
-         rating == 5) %>% 
-  mutate(text_label = str_c("Neighbourhood: ", neighbourhood, "\nPrice/Night: ", price_per_night)) %>%
-  plot_ly(x = ~lat, y = ~long, type = "scatter", mode = "markers", 
-          color = ~neighbourhood, alpha = 0.5, colors = viridis_pal(option = "D")(31),
-          text = ~text_label) %>% 
-  layout(xaxis = ax, yaxis = ax)
+  select(location, year, month, snow) %>%
+  group_by(location, year) %>% 
+  summarize(yearly_snow = sum(snow)) %>% 
+  plot_ly(y = ~yearly_snow, x = ~year, type = "scatter", mode = "lines",     # make line graph
+          color = ~location, colors = viridis_pal(option = "D")(5)) %>%      # tells viridis to get 5 colors %>% 
+  layout(
+    xaxis = list(
+      title = "Year",
+      autotick = FALSE, tick0 = 1980, dtick = 2, tickangle = 45),
+    yaxis = list(
+      title = "Annual Snowfall (mm)"
+    ))
 
 ```
 
 Column {data-width=350}
 -----------------------------------------------------------------------
 
-### Neighbourhoods with most <$75.00 home/apt listings
+### Manhattan Monthly Temperature (C) changes in 2010
 
 ```{r}
 
 base_df %>% 
-  filter(price_per_night < 75) %>% 
-  group_by(boro, neighbourhood) %>% 
-  count(neighbourhood, sort = TRUE) %>% 
-  ungroup() %>% 
-  top_n(10) %>% 
-  droplevels() %>% 
-  mutate(neighbourhood = fct_reorder(neighbourhood, n)) %>% 
-  plot_ly(x = ~neighbourhood, y = ~n, type = "bar", 
-          color = ~boro, colors = viridis_pal(option = "D")(2)) %>% 
+  select(location, year, month, tmin, tmax) %>%
+  filter(location == "Manhattan",
+         year == 2010) %>%
+  pivot_longer(tmax:tmin,
+               names_to = "obs",
+               values_to = "temp") %>% 
+  plot_ly(y = ~temp, x = ~month, type = "scatter", mode = "markers",     
+          color = ~obs, colors = viridis_pal(option = "D")(10), opacity = 0.4) %>%
   layout(
     xaxis = list(
-      title = "Neighbourhoods"),
+      title = "Months in 2010",
+      autotick = FALSE, tick0 = 1, dtick = 1),
     yaxis = list(
-      title = "Number of < $75.00 listings"
+      title = "Temperature (C)"
     ))
 
 ```
 
-### Distribution of price/night in the 5 Boroughs
+### Bronx's Total Precipitation and Average Min Temperature in 2010
 
 ```{r}
 
 base_df %>% 
-  filter(room_type == "Entire home/apt",
-         price_per_night %in% 0:350) %>% 
-  mutate(boro = fct_reorder(boro, price_per_night)) %>% 
-  plot_ly(y = ~price_per_night, x = ~boro, type = "box", 
-          color = ~boro, colors = viridis_pal(option = "D")(5)) %>% 
+  select(location, year, month, prcp, tmin) %>%
+  filter(location == "Bronx",
+         year == 2010) %>% 
+  group_by(month) %>% 
+  summarize(total_prcp = sum(prcp),
+            avg_tmin = mean(tmin)) %>% 
+  plot_ly() %>% 
+  add_trace(x = ~month, y = ~total_prcp, type = "bar", name = "Precipitation (mm)",
+            hoverinfo = "text",
+            text = ~paste(total_prcp, " mm")) %>% 
+  add_trace(x = ~month, y = ~avg_tmin, type = "scatter", mode = "line", name = "Min Temp (C)", 
+            yaxis = "y2",
+            hoverinfo = "text",
+            text = ~paste(avg_tmin, " C")) %>% 
   layout(
-    xaxis = list(
-      title = "Boroughs"),
     yaxis = list(
-      title = "Price per Night ($)"
-    ))
+      side = 'left', 
+      title = 'Precipitation (mm)', 
+      showgrid = FALSE, zeroline = FALSE),
+    yaxis2 = list(
+      side = 'right', overlaying = "y", 
+      title = 'Min Temp (C)', 
+      showgrid = FALSE, zeroline = FALSE),
+    xaxis = list(
+      title = "Months in 2010",
+      autotick = FALSE, tick0 = 1, dtick = 1, tickangle = 0)
+  )
 
 ```
 

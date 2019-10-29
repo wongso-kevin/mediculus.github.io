@@ -406,85 +406,94 @@ div.tocify {
 <p><br></br><br></br></p>
 <div id="preparing-datasets" class="section level1">
 <h1>Preparing Datasets</h1>
-<p>We’re going to use the NYC AirBnB dataset in <code>p8105.datasets</code> from our P8105 class. More information about the dataset is <a href="https://p8105.com/dataset_airbnb.html">here</a>. The plots can be seen <a href="dashboard-hw.html">here</a> (or click on “Stuff I Learned” and click on “Dashboard”). This page will describe the code behind the graphs.</p>
-<pre class="r"><code>data(&quot;nyc_airbnb&quot;)
-set.seed(70)                    # fix randomization
+<p>We’re going to use the NYC NOAA dataset in <code>p8105.datasets</code> from our P8105 class. More information about the dataset is <a href="https://p8105.com/dataset_noaa.html">here</a>. The plots can be seen <a href="dashboard-hw.html">here</a> (or click on “Stuff I Learned” and click on “Dashboard”). This page will describe the code behind the graphs.</p>
+<pre class="r"><code>data(&quot;ny_noaa&quot;)
 
-base_df &lt;- nyc_airbnb %&gt;% 
+base_df &lt;- ny_noaa %&gt;% 
   janitor::clean_names() %&gt;% 
-  rename(
-    &quot;rating&quot; = review_scores_location,                 # rename reviews to an easier name
-    &quot;boro&quot; = neighbourhood_group                       # rename to a more familiar term
-  ) %&gt;% 
-  mutate(price_per_night = price/minimum_nights,       # add price/night column
-         rating = rating/2,                            # turn &quot;10-star&quot; rating to &quot;5-star&quot;
-         boro = as.factor(boro),                       # turns variables to factors
-         neighbourhood = as.factor(neighbourhood),
-         room_type = as.factor(room_type)
-  ) %&gt;% 
-  select(boro, neighbourhood, room_type, lat, long,    # select relevant variables
-         price_per_night, rating) %&gt;%  
-  filter(!is.na(rating),                               # filter out NA
-         room_type == &quot;Entire home/apt&quot;) %&gt;%           # only data from entire home/apt
-  sample_n(5000)                                       # obtain 5000 samples randomly</code></pre>
-<p>We filter out unnecessary variables and retains only the generally useful information: boroughs, neighbourhoods, room type, latitude/longitude, price per night, and 5-star rating. Since our original dataframe contains a vast amount of data, we took a smaller sample of 5000. <br></br></p>
+  drop_na() %&gt;%                                                     # drop any NA in any column
+  filter(id %in% c(&quot;USW00094728&quot;, &quot;USC00300961&quot;, &quot;USC00306164&quot;, &quot;USC00307799&quot;, &quot;USW00014735&quot;)) %&gt;% 
+  mutate(location = case_when(id == &quot;USW00094728&quot; ~ &quot;Manhattan&quot;,
+                              id == &quot;USC00300961&quot; ~ &quot;Bronx&quot;,
+                              id == &quot;USC00306164&quot; ~ &quot;Ogdensburg&quot;,
+                              id == &quot;USC00307799&quot; ~ &quot;Slide Mountain&quot;,
+                              id == &quot;USW00014735&quot; ~ &quot;Albany&quot;),
+         tmin = as.numeric(tmin)/10,                                # convert from tenths to regular C
+         tmax = as.numeric(tmax)/10,
+         year = lubridate::year(date),                              # turn to specified date format
+         month = lubridate::month(date),
+         date = lubridate::day(date)) %&gt;% 
+  select(location, year, month, date, everything(), -id, -snwd)</code></pre>
+<p>We filter out unnecessary variables and retains only the information we want: year/month/date, precipitation, snowfall, and max/min temp. We will be comparing these information between locations in New York State; Manhattan, Bronx, Ogdensburg, Slide Mountain, and Albany. <br></br></p>
 </div>
-<div id="getting-plot-for-distribution-of-nightly-price" class="section level1">
-<h1>Getting plot for distribution of nightly price</h1>
+<div id="getting-plot-for-annual-snowfall-between-1981---2010" class="section level1">
+<h1>Getting plot for annual snowfall between 1981 - 2010</h1>
 <pre class="r"><code>base_df %&gt;% 
-  filter(price_per_night %in% 0:350) %&gt;%                              # narrows price range to $0-$350 / night
-  mutate(boro = fct_reorder(boro, desc(price_per_night))) %&gt;%         # re-orders boroughs based on price
-  plot_ly(y = ~price_per_night, x = ~boro, type = &quot;box&quot;,              # make boxplot
-          color = ~boro, colors = viridis_pal(option = &quot;D&quot;)(5)) %&gt;%   # tells viridis to get 5 colors
+  select(location, year, month, snow) %&gt;%
+  group_by(location, year) %&gt;% 
+  summarize(yearly_snow = sum(snow)) %&gt;% 
+  plot_ly(y = ~yearly_snow, x = ~year, type = &quot;scatter&quot;, mode = &quot;lines&quot;,     # make line graph
+          color = ~location, colors = viridis_pal(option = &quot;D&quot;)(5)) %&gt;%      # tells viridis to get 5 colors %&gt;% 
   layout(
     xaxis = list(
-      title = &quot;Boroughs&quot;),                                            # add axis labels
+      title = &quot;Year&quot;,
+      autotick = FALSE, tick0 = 1980, dtick = 2, tickangle = 45),            # manually assigns ticks/tick-gaps
     yaxis = list(
-      title = &quot;Price per Night ($)&quot;
+      title = &quot;Annual Snowfall (mm)&quot;
     ))</code></pre>
-<p>We then create a simple distribution boxplot that shows how the nightly price for entire home/apt differs by boroughs. Though be mindful that we only take a sample of 5000. <br></br></p>
+<p>This particular code creates a simple line graph with colors based on the locations that shows how the annual snowfall fluctuates over the years. <br></br></p>
 </div>
-<div id="making-bar-charts-for-top-10-neighbourhoods-with-nightly-prices-below-75" class="section level1">
-<h1>Making bar charts for top 10 neighbourhoods with nightly prices below $75</h1>
+<div id="manhattan-monthly-temperature-c-changes-in-2010" class="section level1">
+<h1>Manhattan Monthly Temperature (C) changes in 2010</h1>
 <pre class="r"><code>base_df %&gt;% 
-  filter(price_per_night &lt; 75) %&gt;%                                    # filter for prices &lt; $75.00
-  group_by(boro, neighbourhood) %&gt;%                                   # group by borough and neighbourhood
-  count(neighbourhood, sort = TRUE) %&gt;%                               # count the listings in each neighbourhood
-  ungroup() %&gt;%                         
-  top_n(10) %&gt;%                                                       # obtain the top 10 with most listings 
-  droplevels() %&gt;%                                                    # remove unused levels
-  mutate(neighbourhood = fct_reorder(neighbourhood, n)) %&gt;%           # reorder neighbourhood by count
-  plot_ly(x = ~neighbourhood, y = ~n, type = &quot;bar&quot;,                   # plot the bargraph
-          color = ~boro, colors = viridis_pal(option = &quot;D&quot;)(2)) %&gt;% 
+  select(location, year, month, tmin, tmax) %&gt;%
+  filter(location == &quot;Manhattan&quot;,
+         year == 2010) %&gt;%
+  pivot_longer(tmax:tmin,
+               names_to = &quot;obs&quot;,
+               values_to = &quot;temp&quot;) %&gt;% 
+  plot_ly(y = ~temp, x = ~month, type = &quot;scatter&quot;, mode = &quot;markers&quot;,     
+          color = ~obs, colors = viridis_pal(option = &quot;D&quot;)(10), opacity = 0.4) %&gt;%
   layout(
-    xaxis = list(                                                     # axis labels
-      title = &quot;Neighbourhoods&quot;),
+    xaxis = list(
+      title = &quot;Months in 2010&quot;,
+      autotick = FALSE, tick0 = 1, dtick = 1),
     yaxis = list(
-      title = &quot;Number of &lt; $75.00 listings&quot;
+      title = &quot;Temperature (C)&quot;
     ))</code></pre>
-<p>This barchart shows the top 10 neighbourhoods with nightly prices of &lt; $75.00. <br></br></p>
+<p>Focusing on Manhattan (Central Park) itself, we can also check the monthly changes in minimum and maximum temperature each year using a scatterplot. In this case, we particularly focus on 2010. <br></br></p>
 </div>
-<div id="scatterplot-of-listings-in-manhattan-with-ratings-4-and-higher" class="section level1">
-<h1>Scatterplot of listings in Manhattan with ratings 4 and higher</h1>
-<pre class="r"><code>ax &lt;- list(                     # setting to remove grid, labels
-  title = &quot;&quot;,
-  zeroline = FALSE,
-  showline = FALSE,
-  showticklabels = FALSE,
-  showgrid = FALSE
-)
-
-base_df %&gt;% 
-  filter(boro == &quot;Manhattan&quot;,                                        # filter by Manhattan and 5-star rating
-         rating == 5) %&gt;% 
-  mutate(
-    text_label = str_c(&quot;Neighbourhood: &quot;, neighbourhood,             # assigns hovering-label
-                       &quot;\nPrice/Night: &quot;, price_per_night)) %&gt;%  
-  plot_ly(x = ~lat, y = ~long, type = &quot;scatter&quot;, mode = &quot;markers&quot;,   # plots the scatter plot
-          color = ~neighbourhood, alpha = 0.5, colors = viridis_pal(option = &quot;D&quot;)(31),
-          text = ~text_label) %&gt;% 
-  layout(xaxis = ax, yaxis = ax)</code></pre>
-<p>This scatterplot code uses the longitude/latitude points to make a “map” of the 5-stars in Manhattan. Hovering over it shows the location and price/night of that location.</p>
+<div id="bronxs-total-precipitation-and-average-min-temperature-in-2010" class="section level1">
+<h1>Bronx’s Total Precipitation and Average Min Temperature in 2010</h1>
+<pre class="r"><code>base_df %&gt;% 
+  select(location, year, month, prcp, tmin) %&gt;%
+  filter(location == &quot;Bronx&quot;,
+         year == 2010) %&gt;% 
+  group_by(month) %&gt;% 
+  summarize(total_prcp = sum(prcp),
+            avg_tmin = mean(tmin)) %&gt;% 
+  plot_ly() %&gt;% 
+  add_trace(x = ~month, y = ~total_prcp, type = &quot;bar&quot;, name = &quot;Precipitation (mm)&quot;,  # add bar graph
+            hoverinfo = &quot;text&quot;,                                                      # add hoverinfo
+            text = ~paste(total_prcp, &quot; mm&quot;)) %&gt;%                                    # hoverinfo content
+  add_trace(x = ~month, y = ~avg_tmin, type = &quot;scatter&quot;, mode = &quot;line&quot;, name = &quot;Min Temp (C)&quot;, # add line graph
+            yaxis = &quot;y2&quot;,                                                                      # specify 2nd y-axis
+            hoverinfo = &quot;text&quot;,
+            text = ~paste(avg_tmin, &quot; C&quot;)) %&gt;% 
+  layout(
+    yaxis = list(
+      side = &#39;left&#39;, 
+      title = &#39;Precipitation (mm)&#39;, 
+      showgrid = FALSE, zeroline = FALSE),
+    yaxis2 = list(
+      side = &#39;right&#39;, overlaying = &quot;y&quot;, 
+      title = &#39;Min Temp (C)&#39;, 
+      showgrid = FALSE, zeroline = FALSE),
+    xaxis = list(
+      title = &quot;Months in 2010&quot;,
+      autotick = FALSE, tick0 = 1, dtick = 1, tickangle = 0)
+  )</code></pre>
+<p>This code combines a bar plot (for total precipitation) and line plot (for average min temp) in order to see possible correlation with temperature and “rainfall” in Bronx, 2010.</p>
 </div>
 
 <!DOCTYPE html>
