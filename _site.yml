@@ -22,7 +22,7 @@ navbar:
     href: https://github.com/Mediculus   # setup a link to your github page
 output:
   html_document:
-    theme: simplex
+    css: simplex2.min.css
     includes:
       after_body: _suffix.html
    
@@ -34,3 +34,6 @@ output:
 # knit the Rmd then delete it. Afterwards, remove <head></head> as it interferes 
 # with tabbed contents and dropdown menu. 
 # Also delete the bottom 3 sections after </div> that contains your footer.
+
+# add custom highlight color; hex code = 4DA580, 4DA592, 30B9A3
+# custom navbar color; hex code = ; original (in .navbar-default) = ffffff
